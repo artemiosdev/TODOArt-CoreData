@@ -1,0 +1,6 @@
+framework module Pods_TODOArt_CoreData {
+  umbrella header "Pods-TODOArt-CoreData-umbrella.h"
+
+  export *
+  module * { export * }
+}
