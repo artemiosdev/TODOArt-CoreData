@@ -19,11 +19,11 @@ class TodoListViewController: SwipeTableViewController {
     }
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.separatorStyle = .none
-        //        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        // the user's documents directory (storage)
+        // print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -40,32 +40,23 @@ class TodoListViewController: SwipeTableViewController {
     }
     
     //MARK: - Tableview Datasource Methods
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return todoItems.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
-        
         let item = todoItems[indexPath.row]
-        
         cell.textLabel?.text = item.title
-        let colour = UIColor(hexString: selectedCategory!.colour!)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(todoItems.count))
+        let colour = UIColor(hexString: selectedCategory?.colour ?? "#ffffff")?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(todoItems.count))
         cell.backgroundColor = colour
         cell.textLabel?.textColor = ContrastColorOf(colour!, returnFlat: true)
-        
-        
         cell.accessoryType = item.done ? .checkmark : .none
-        
         return cell
     }
     
     //MARK: - TableView Delegate Methods
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //        context.delete(itemArray[indexPath.row])
-        //        itemArray.remove(at: indexPath.row)
         todoItems[indexPath.row].done = !todoItems[indexPath.row].done
         saveItems()
         tableView.reloadData()
@@ -73,34 +64,25 @@ class TodoListViewController: SwipeTableViewController {
     }
     
     //MARK: - Add New Items
-    
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
-        
         var textField = UITextField()
-        
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
-        
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //what will happen once the user clicks the Add Item button on our UIAlert
-            
-            
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
             newItem.done = false
             newItem.parentCategory = self.selectedCategory
             self.todoItems.append(newItem)
-            
             self.saveItems()
         }
         
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Create new item"
             textField = alertTextField
-            
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
-        
     }
     
     //MARK: - Model Manupulation Methods
@@ -131,11 +113,9 @@ class TodoListViewController: SwipeTableViewController {
     
     //MARK: - Delete Data From Swipe
     override func updateModel(at indexPath: IndexPath) {
-        //    let todoItemsForDeleted = todoItems[indexPath.row]
         context.delete(todoItems[indexPath.row])
         todoItems.remove(at: indexPath.row)
     }
-
 }
 
 
@@ -146,7 +126,6 @@ extension TodoListViewController: UISearchBarDelegate {
         let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         loadItems(with: request, predicate: predicate)
-        
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -155,7 +134,6 @@ extension TodoListViewController: UISearchBarDelegate {
             DispatchQueue.main.async {
                 searchBar.resignFirstResponder()
             }
-            
         }
     }
 }
